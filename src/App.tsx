@@ -7,13 +7,6 @@ import Uuid from 'pure-uuid';
 import { MessageType, CurrentValue } from './Message';
 import _ from 'lodash';
 
-// const initialState: Users = {
-//   '1': { name: 'Janina', value: '3' },
-//   '2': { name: 'Mr. Bones', value: '2' },
-//   '3': { name: 'Felix', value: '5' },
-//   '4': { name: 'Patryk', value: '8' },
-// };
-
 const ownId = new Uuid(4).format();
 
 const socket = new WebSocket(
@@ -30,7 +23,11 @@ const sendData = (name: string, value: string | undefined) => {
   socket.send(JSON.stringify(data));
 };
 
-window.onbeforeunload = () => {
+// window.onbeforeunload = () => {
+//   socket.send(JSON.stringify({ type: MessageType.Leave }));
+// };
+
+window.onunload = () => {
   socket.send(JSON.stringify({ type: MessageType.Leave }));
 };
 
