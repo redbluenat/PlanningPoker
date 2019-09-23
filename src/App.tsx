@@ -31,7 +31,10 @@ const sendData = (name: string, value: string | undefined) => {
 };
 
 window.onbeforeunload = () => {
-  socket.send(JSON.stringify({ type: MessageType.Leave }));
+  socket.send(JSON.stringify({
+    type: MessageType.Leave,
+    clientId: ownId,
+  }));
 };
 
 const App: React.FC = () => {
