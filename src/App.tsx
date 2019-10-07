@@ -153,7 +153,7 @@ const App: React.FC = () => {
         onClick={value => setData(name, value)}
       />
 
-      <Results users={users} />
+      <Results ownId={ownId} users={users} />
     </div>
   );
 };
