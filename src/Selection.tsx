@@ -22,6 +22,7 @@ export const Selection = ({ currentSelection, onClick }: IProps) => (
   <div>
     {values.map(({ value, color }) => (
       <Card
+        key={value}
         color={
           currentSelection
             ? currentSelection === value
