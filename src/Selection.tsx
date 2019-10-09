@@ -10,7 +10,7 @@ const values = [
   { value: '8', color: 'red' },
   { value: '13', color: 'violet' },
   { value: '20', color: '#bbb' },
-  { value: '?', color: '#fff' },
+  { value: '🤔', color: '#fff' },
 ];
 
 interface IProps {
@@ -22,6 +22,7 @@ export const Selection = ({ currentSelection, onClick }: IProps) => (
   <div>
     {values.map(({ value, color }) => (
       <Card
+        key={value}
         color={
           currentSelection
             ? currentSelection === value
