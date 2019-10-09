@@ -40,7 +40,7 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<Users>({
     [ownId]: {
-      name: '',
+      name: localStorage.getItem('name') || '',
       value: undefined,
     },
   });
@@ -50,6 +50,12 @@ const App: React.FC = () => {
   const setData = (name: string, value: string | undefined) => {
     sendData(name, value);
     setUsers(users => ({ ...users, [ownId]: { name, value } }));
+  };
+
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+    const name = event.target.value;
+    localStorage.setItem('name', name);
+    setData(name, value);
   };
 
   const reset = () => {
@@ -131,7 +137,7 @@ const App: React.FC = () => {
           <input
             style={{ marginLeft: 16 }}
             value={name}
-            onChange={event => setData(event.target.value, value)}
+            onChange={handleNameChange}
           ></input>
         </label>
       </div>
@@ -152,7 +158,7 @@ const App: React.FC = () => {
         onClick={value => setData(name, value)}
       />
 
-      <Results users={users} />
+      <Results ownId={ownId} users={users} />
     </div>
   );
 };
