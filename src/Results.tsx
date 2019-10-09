@@ -22,7 +22,7 @@ export const Results = ({ users }: IProps) => {
   return (
     <div>
       {Object.keys(users).map(key => (
-        <Card>
+        <Card key={key}>
           <div>
             <div style={{ padding: 16 }}>{users[key].name}</div>
             <div style={{ fontSize: 80 }}>{users[key].value}</div>
