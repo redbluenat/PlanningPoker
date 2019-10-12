@@ -1,5 +1,6 @@
 {
   "name": "planningpoker",
+  "homepage": "https://okwast.github.io/PlanningPoker/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -18,7 +19,9 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "predeploy": "yarn build",
+    "deploy": "gh-pages -d build"
   },
   "eslintConfig": {
     "extends": "react-app"
@@ -36,6 +39,7 @@
     ]
   },
   "devDependencies": {
-    "@types/lodash": "^4.14.138"
+    "@types/lodash": "^4.14.138",
+    "gh-pages": "^2.1.1"
   }
 }
