@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import './App.css';
 import { Users } from './User';
 import { Results } from './Results';
@@ -6,14 +6,21 @@ import { Selection } from './Selection';
 import Uuid from 'pure-uuid';
 import { MessageType, CurrentValue } from './Message';
 import _ from 'lodash';
+import { addUrlProps } from 'react-url-query';
 
 const ownId = new Uuid(4).format();
 
-const socket = new WebSocket(
-  'wss://connect.websocket.in/PlanningPokerApp?room_id=Demo',
-);
+const mapUrlToProps = (url: any) => {
+  return {
+    room: url.room,
+  };
+};
 
-const sendData = (name: string, value: string | undefined) => {
+const sendData = (
+  socket: WebSocket,
+  name: string,
+  value: string | undefined,
+) => {
   const data: CurrentValue = {
     type: MessageType.CurrentValue,
     clientId: ownId,
@@ -23,20 +30,11 @@ const sendData = (name: string, value: string | undefined) => {
   socket.send(JSON.stringify(data));
 };
 
-// window.onbeforeunload = () => {
-//   socket.send(JSON.stringify({ type: MessageType.Leave }));
-// };
+interface IProps {
+  room: string;
+}
 
-window.onunload = () => {
-  socket.send(
-    JSON.stringify({
-      type: MessageType.Leave,
-      clientId: ownId,
-    }),
-  );
-};
-
-const App: React.FC = () => {
+const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
   const [loading, setLoading] = useState(true);
   const [users, setUsers] = useState<Users>({
     [ownId]: {
@@ -47,12 +45,25 @@ const App: React.FC = () => {
 
   const { name, value } = users[ownId];
 
-  const setData = (name: string, value: string | undefined) => {
-    sendData(name, value);
-    setUsers(users => ({ ...users, [ownId]: { name, value } }));
-  };
+  const socket = useMemo(
+    () =>
+      new WebSocket(
+        `wss://connect.websocket.in/PlanningPokerApp?room_id=${room}`,
+      ),
+    [room],
+  );
 
-  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>): void => {
+  const setData = useCallback(
+    (name: string, value: string | undefined) => {
+      sendData(socket, name, value);
+      setUsers(users => ({ ...users, [ownId]: { name, value } }));
+    },
+    [socket],
+  );
+
+  const handleNameChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ): void => {
     const name = event.target.value;
     localStorage.setItem('name', name);
     setData(name, value);
@@ -73,6 +84,17 @@ const App: React.FC = () => {
   };
 
   useEffect(() => {
+    window.onunload = () => {
+      socket.send(
+        JSON.stringify({
+          type: MessageType.Leave,
+          clientId: ownId,
+        }),
+      );
+    };
+  }, [socket]);
+
+  useEffect(() => {
     socket.onopen = () => {
       setLoading(false);
       socket.send(
@@ -80,7 +102,7 @@ const App: React.FC = () => {
           type: MessageType.RequestCurrentValue,
         }),
       );
-      sendData(name, value);
+      sendData(socket, name, value);
     };
 
     socket.onmessage = event => {
@@ -112,7 +134,7 @@ const App: React.FC = () => {
           break;
         }
         case MessageType.RequestCurrentValue: {
-          sendData(name, value);
+          sendData(socket, name, value);
           break;
         }
         case MessageType.Reset: {
@@ -125,7 +147,7 @@ const App: React.FC = () => {
     };
 
     socket.onclose = event => {};
-  }, [name, users, value]);
+  }, [name, socket, users, value]);
 
   if (loading) return <header>Loading ...</header>;
 
@@ -163,4 +185,4 @@ const App: React.FC = () => {
   );
 };
 
-export default App;
+export default addUrlProps({ mapUrlToProps })(App);
