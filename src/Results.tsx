@@ -42,16 +42,31 @@ export const Results = ({ ownId, users }: IProps) => {
       return value1 - value2;
     });
 
+  const minResult = extendedUsers[0].value;
+  const maxResult = extendedUsers[extendedUsers.length - 1].value;
+
   return (
     <div>
-      {extendedUsers.map(extendedUser => (
-        <Card key={extendedUser.key}>
-          <div>
-            <div style={{ padding: 16 }}>{extendedUser.name}</div>
-            <div style={{ fontSize: 80 }}>{getValue(extendedUser.key)}</div>
-          </div>
-        </Card>
-      ))}
+      {extendedUsers.map(extendedUser => {
+        const isMin = extendedUser.value === minResult;
+        const isMax = extendedUser.value === maxResult;
+
+        return (
+          <Card key={extendedUser.key}>
+            <div>
+              <div style={{ padding: 16 }}>{extendedUser.name}</div>
+              <div
+                style={{
+                  fontSize: 80,
+                  color: disclose && (isMin || isMax) ? "red" : "black"
+                }}
+              >
+                {getValue(extendedUser.key)}
+              </div>
+            </div>
+          </Card>
+        );
+      })}
     </div>
   );
 };
