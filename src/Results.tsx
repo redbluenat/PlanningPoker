@@ -13,13 +13,16 @@ export const Results = ({ ownId, users }: IProps) => {
   ).length;
   const totalNumberOfUsers = Object.keys(users).length;
   const disclose = numberOfFinishedUsers === totalNumberOfUsers;
+  const isOwnResult = (key: string) => {
+    return key === ownId;
+  };
 
   const getValue = (key: string) => {
     if (!users || !users[key] || users[key].value === undefined) {
       return "_";
     }
 
-    if (key === ownId) {
+    if (isOwnResult(key)) {
       return users[key].value;
     }
 
@@ -52,7 +55,10 @@ export const Results = ({ ownId, users }: IProps) => {
         const isMax = extendedUser.value === maxResult;
 
         return (
-          <Card key={extendedUser.key}>
+          <Card
+            key={extendedUser.key}
+            color={isOwnResult(extendedUser.key) ? "#c3f7f7" : undefined}
+          >
             <div>
               <div style={{ padding: 16 }}>{extendedUser.name}</div>
               <div
