@@ -1,0 +1,3 @@
+# Prevent prettier from autofixing the package.json 🎉
+package.json
+*.snap
