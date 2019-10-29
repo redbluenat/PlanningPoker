@@ -10,7 +10,7 @@ const values = [
   { value: '8', color: 'red' },
   { value: '13', color: 'violet' },
   { value: '20', color: '#bbb' },
-  { value: '🤔', color: '#fff' },
+  { value: '🤔', color: '#fff' }
 ];
 
 interface IProps {
@@ -33,7 +33,17 @@ export const Selection = ({ currentSelection, onClick }: IProps) => (
         size={50}
         onClick={() => onClick(value)}
       >
-        <div style={{ fontSize: 35 }}>{value}</div>
+        <div
+          style={{
+            height: 50,
+            fontSize: 35,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          {value}
+        </div>
       </Card>
     ))}
   </div>
