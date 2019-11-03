@@ -29,9 +29,19 @@ export const Results = ({ ownId, users }: IProps) => {
     return disclose ? users[key].value : "?";
   };
 
-  const extendedUsers = Object.keys(users)
-    .map(key => ({ ...users[key], key }))
-    .sort((user1, user2) => {
+  const extendedUsers = Object.keys(users).map(key => ({
+    ...users[key],
+    key
+  }));
+
+  const sortUsers = (
+    users: {
+      key: string;
+      name: string;
+      value?: string | undefined;
+    }[]
+  ) => {
+    return users.sort((user1, user2) => {
       if (!user1.value) return -1;
 
       if (!user2.value) return 1;
@@ -44,30 +54,35 @@ export const Results = ({ ownId, users }: IProps) => {
 
       return value1 - value2;
     });
+  };
 
-  const minResult = extendedUsers[0].value;
-  const maxResult = extendedUsers[extendedUsers.length - 1].value;
+  const extendedSortedUsers = disclose
+    ? sortUsers(extendedUsers)
+    : extendedUsers;
+
+  const minResult = extendedSortedUsers[0].value;
+  const maxResult = extendedSortedUsers[extendedSortedUsers.length - 1].value;
 
   return (
     <div>
-      {extendedUsers.map(extendedUser => {
-        const isMin = extendedUser.value === minResult;
-        const isMax = extendedUser.value === maxResult;
+      {extendedSortedUsers.map(extendedSortedUsers => {
+        const isMin = extendedSortedUsers.value === minResult;
+        const isMax = extendedSortedUsers.value === maxResult;
 
         return (
           <Card
-            key={extendedUser.key}
-            color={isOwnResult(extendedUser.key) ? "#c3f7f7" : undefined}
+            key={extendedSortedUsers.key}
+            color={isOwnResult(extendedSortedUsers.key) ? "#c3f7f7" : undefined}
           >
             <div>
-              <div style={{ padding: 16 }}>{extendedUser.name}</div>
+              <div style={{ padding: 16 }}>{extendedSortedUsers.name}</div>
               <div
                 style={{
                   fontSize: 80,
                   color: disclose && (isMin || isMax) ? "red" : "black"
                 }}
               >
-                {getValue(extendedUser.key)}
+                {getValue(extendedSortedUsers.key)}
               </div>
             </div>
           </Card>
