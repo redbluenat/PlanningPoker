@@ -174,6 +174,7 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
               setShowAdminCheckbox(false);
             }
           }
+          break;
         }
         default:
           return;
