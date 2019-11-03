@@ -12,20 +12,20 @@ const ownId = new Uuid(4).format();
 
 const mapUrlToProps = (url: any) => {
   return {
-    room: url.room,
+    room: url.room
   };
 };
 
 const sendData = (
   socket: WebSocket,
   name: string,
-  value: string | undefined,
+  value: string | undefined
 ) => {
   const data: CurrentValue = {
     type: MessageType.CurrentValue,
     clientId: ownId,
     name,
-    value,
+    value
   };
   socket.send(JSON.stringify(data));
 };
@@ -39,8 +39,8 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
   const [users, setUsers] = useState<Users>({
     [ownId]: {
       name: localStorage.getItem('name') || '',
-      value: undefined,
-    },
+      value: undefined
+    }
   });
 
   const { name, value } = users[ownId];
@@ -48,9 +48,9 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
   const socket = useMemo(
     () =>
       new WebSocket(
-        `wss://connect.websocket.in/PlanningPokerApp?room_id=${room}`,
+        `wss://connect.websocket.in/PlanningPokerApp?room_id=${room}`
       ),
-    [room],
+    [room]
   );
 
   const setData = useCallback(
@@ -58,11 +58,11 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
       sendData(socket, name, value);
       setUsers(users => ({ ...users, [ownId]: { name, value } }));
     },
-    [socket],
+    [socket]
   );
 
   const handleNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ): void => {
     const name = event.target.value;
     localStorage.setItem('name', name);
@@ -76,10 +76,10 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
         .reduce(
           (newUsers, [key, user]) => ({
             ...newUsers,
-            [key]: { ...user, value: undefined },
+            [key]: { ...user, value: undefined }
           }),
-          {},
-        ),
+          {}
+        )
     );
   };
 
@@ -88,8 +88,8 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
       socket.send(
         JSON.stringify({
           type: MessageType.Leave,
-          clientId: ownId,
-        }),
+          clientId: ownId
+        })
       );
     };
   }, [socket]);
@@ -99,8 +99,8 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
       setLoading(false);
       socket.send(
         JSON.stringify({
-          type: MessageType.RequestCurrentValue,
-        }),
+          type: MessageType.RequestCurrentValue
+        })
       );
       sendData(socket, name, value);
     };
@@ -114,7 +114,7 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
         case MessageType.CurrentValue: {
           setUsers(users => ({
             ...users,
-            [message.clientId]: { name: message.name, value: message.value },
+            [message.clientId]: { name: message.name, value: message.value }
           }));
           break;
         }
@@ -126,9 +126,9 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
           const newUsers = userPairs.reduce(
             (newUsers, [key, user]) => ({
               ...newUsers,
-              [key]: { ...user, value: undefined },
+              [key]: { ...user, value: undefined }
             }),
-            {},
+            {}
           );
           setUsers(newUsers);
           break;
