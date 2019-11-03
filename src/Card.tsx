@@ -1,5 +1,5 @@
-import React, { ReactElement } from 'react';
-import { Color } from 'csstype';
+import React, { ReactElement } from "react";
+import { Color } from "csstype";
 
 interface IProps {
   children: ReactElement;
@@ -15,12 +15,11 @@ export const Card = ({ children, color, onClick, size }: IProps) => (
       width: size || 150,
       height: size || 150,
       flex: 1,
-      justifyContent: 'center',
-      alignItems: 'center',
-      // overflow: 'hidden',
+      justifyContent: "center",
+      alignItems: "center",
       margin: 8,
-      background: color ? color : '#fff',
-      display: 'inline-block',
+      background: color ? color : "#fff",
+      display: "inline-block"
     }}
     onClick={onClick}
   >
