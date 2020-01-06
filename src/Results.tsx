@@ -1,6 +1,6 @@
-import React from "react";
-import { Users } from "./User";
-import { Card } from "./Card";
+import React from 'react';
+import { Users } from './User';
+import { Card } from './Card';
 
 interface IProps {
   ownId: string;
@@ -19,14 +19,14 @@ export const Results = ({ ownId, users }: IProps) => {
 
   const getValue = (key: string) => {
     if (!users || !users[key] || users[key].value === undefined) {
-      return "_";
+      return '_';
     }
 
     if (isOwnResult(key)) {
       return users[key].value;
     }
 
-    return disclose ? users[key].value : "?";
+    return disclose ? users[key].value : '?';
   };
 
   const extendedUsers = Object.keys(users).map(key => ({
@@ -72,14 +72,24 @@ export const Results = ({ ownId, users }: IProps) => {
         return (
           <Card
             key={extendedSortedUsers.key}
-            color={isOwnResult(extendedSortedUsers.key) ? "#c3f7f7" : undefined}
+            color={isOwnResult(extendedSortedUsers.key) ? '#c3f7f7' : undefined}
           >
             <div>
-              <div style={{ padding: 16 }}>{extendedSortedUsers.name}</div>
+              <div
+                style={{
+                  padding: 16,
+                  wordWrap: 'break-word',
+                  height: '1em',
+                  lineHeight: '1em',
+                  overflow: 'hidden'
+                }}
+              >
+                {extendedSortedUsers.name}
+              </div>
               <div
                 style={{
                   fontSize: 80,
-                  color: disclose && (isMin || isMax) ? "red" : "black"
+                  color: disclose && (isMin || isMax) ? 'red' : 'black'
                 }}
               >
                 {getValue(extendedSortedUsers.key)}
