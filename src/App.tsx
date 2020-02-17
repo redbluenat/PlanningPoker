@@ -48,8 +48,8 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
 
   const [audio] = useState(
     new Audio(
-      'http://soundbible.com/mp3/SMALL_CROWD_APPLAUSE-Yannick_Lemieux-1268806408.mp3'
-    )
+      'https://raw.githubusercontent.com/redbluenat/PlanningPoker/feature/sound-effect-for-same-points/src/wow.mp3'
+    ) // should be update with a repo link after merge
   );
 
   const { name, value } = users[ownId];
