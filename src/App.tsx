@@ -37,6 +37,8 @@ interface IProps {
 const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
   const [loading, setLoading] = useState(true);
   const [audioPlayed, setAudioPlayed] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showAdminCheckbox, setShowAdminCheckbox] = useState(true);
   const [users, setUsers] = useState<Users>({
     [ownId]: {
       name: localStorage.getItem('name') || '',
@@ -91,6 +93,27 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
     );
     setAudioPlayed(false);
   }, [audio]);
+
+  const onAdminSet = useCallback(() => {
+    if (!isAdmin) {
+      setIsAdmin(true);
+      socket.send(
+        JSON.stringify({
+          type: MessageType.AdminSet,
+          clientId: ownId
+        })
+      );
+    } else {
+      setIsAdmin(false);
+      socket.send(
+        JSON.stringify({
+          type: MessageType.AdminSet,
+          clientId: ''
+        })
+      );
+    }
+    sendData(socket, name, value);
+  }, [isAdmin, name, socket, value]);
 
   useEffect(() => {
     window.onunload = () => {
@@ -150,6 +173,18 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
           reset();
           break;
         }
+        case MessageType.AdminSet: {
+          const clientId = message.clientId;
+          if (clientId !== ownId) {
+            if (clientId === '') {
+              setShowAdminCheckbox(true);
+            } else {
+              setIsAdmin(false);
+              setShowAdminCheckbox(false);
+            }
+          }
+          break;
+        }
         default:
           return;
       }
@@ -184,26 +219,28 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
 
   return (
     <div className="App">
+      {showAdminCheckbox && (
+        <div style={{ marginTop: 10 }}>
+          <input
+            type="checkbox"
+            id="adminCheckbox"
+            checked={isAdmin}
+            onClick={onAdminSet}
+          ></input>
+          Ich bin ein Administrator
+        </div>
+      )}
+
       <div style={{ flexDirection: 'row', margin: 16 }}>
         <label>
-          Dein Name:
+          <strong>Dein Name:</strong>
           <input
+            className="Input"
             style={{ marginLeft: 16 }}
             value={name}
             onChange={handleNameChange}
           ></input>
         </label>
-      </div>
-
-      <div>
-        <button
-          onClick={() => {
-            socket.send(JSON.stringify({ type: MessageType.Reset }));
-            reset();
-          }}
-        >
-          Reset
-        </button>
       </div>
 
       <Selection
@@ -212,6 +249,19 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
       />
 
       <Results ownId={ownId} users={users} />
+
+      {isAdmin && (
+        <div style={{ marginTop: 50 }}>
+          <button
+            onClick={() => {
+              socket.send(JSON.stringify({ type: MessageType.Reset }));
+              reset();
+            }}
+          >
+            Reset
+          </button>
+        </div>
+      )}
     </div>
   );
 };

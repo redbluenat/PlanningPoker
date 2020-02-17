@@ -3,6 +3,7 @@ export enum MessageType {
   Leave = 'leave',
   RequestCurrentValue = 'request_current_value',
   Reset = 'reset',
+  AdminSet = 'admin_set'
 }
 
 export interface RequestCurrentValue {
@@ -25,4 +26,14 @@ export interface Leave {
   clientId: string;
 }
 
-export type Message = RequestCurrentValue | CurrentValue | Reset | Leave;
+export interface AdminSet {
+  type: MessageType.AdminSet;
+  clientId: string;
+}
+
+export type Message =
+  | RequestCurrentValue
+  | CurrentValue
+  | Reset
+  | Leave
+  | AdminSet;
