@@ -12,20 +12,20 @@ const ownId = new Uuid(4).format();
 
 const mapUrlToProps = (url: any) => {
   return {
-    room: url.room,
+    room: url.room
   };
 };
 
 const sendData = (
   socket: WebSocket,
   name: string,
-  value: string | undefined,
+  value: string | undefined
 ) => {
   const data: CurrentValue = {
     type: MessageType.CurrentValue,
     clientId: ownId,
     name,
-    value,
+    value
   };
   socket.send(JSON.stringify(data));
 };
@@ -36,11 +36,13 @@ interface IProps {
 
 const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
   const [loading, setLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [showAdminCheckbox, setShowAdminCheckbox] = useState(true);
   const [users, setUsers] = useState<Users>({
     [ownId]: {
       name: localStorage.getItem('name') || '',
-      value: undefined,
-    },
+      value: undefined
+    }
   });
 
   const { name, value } = users[ownId];
@@ -48,9 +50,9 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
   const socket = useMemo(
     () =>
       new WebSocket(
-        `wss://connect.websocket.in/PlanningPokerApp?room_id=${room}`,
+        `wss://connect.websocket.in/PlanningPokerApp?room_id=${room}`
       ),
-    [room],
+    [room]
   );
 
   const setData = useCallback(
@@ -58,11 +60,11 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
       sendData(socket, name, value);
       setUsers(users => ({ ...users, [ownId]: { name, value } }));
     },
-    [socket],
+    [socket]
   );
 
   const handleNameChange = (
-    event: React.ChangeEvent<HTMLInputElement>,
+    event: React.ChangeEvent<HTMLInputElement>
   ): void => {
     const name = event.target.value;
     localStorage.setItem('name', name);
@@ -76,20 +78,41 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
         .reduce(
           (newUsers, [key, user]) => ({
             ...newUsers,
-            [key]: { ...user, value: undefined },
+            [key]: { ...user, value: undefined }
           }),
-          {},
-        ),
+          {}
+        )
     );
   };
+
+  const onAdminSet = useCallback(() => {
+    if (!isAdmin) {
+      setIsAdmin(true);
+      socket.send(
+        JSON.stringify({
+          type: MessageType.AdminSet,
+          clientId: ownId
+        })
+      );
+    } else {
+      setIsAdmin(false);
+      socket.send(
+        JSON.stringify({
+          type: MessageType.AdminSet,
+          clientId: ''
+        })
+      );
+    }
+    sendData(socket, name, value);
+  }, [isAdmin, name, socket, value]);
 
   useEffect(() => {
     window.onunload = () => {
       socket.send(
         JSON.stringify({
           type: MessageType.Leave,
-          clientId: ownId,
-        }),
+          clientId: ownId
+        })
       );
     };
   }, [socket]);
@@ -99,8 +122,8 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
       setLoading(false);
       socket.send(
         JSON.stringify({
-          type: MessageType.RequestCurrentValue,
-        }),
+          type: MessageType.RequestCurrentValue
+        })
       );
       sendData(socket, name, value);
     };
@@ -114,7 +137,7 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
         case MessageType.CurrentValue: {
           setUsers(users => ({
             ...users,
-            [message.clientId]: { name: message.name, value: message.value },
+            [message.clientId]: { name: message.name, value: message.value }
           }));
           break;
         }
@@ -126,9 +149,9 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
           const newUsers = userPairs.reduce(
             (newUsers, [key, user]) => ({
               ...newUsers,
-              [key]: { ...user, value: undefined },
+              [key]: { ...user, value: undefined }
             }),
-            {},
+            {}
           );
           setUsers(newUsers);
           break;
@@ -139,6 +162,18 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
         }
         case MessageType.Reset: {
           reset();
+          break;
+        }
+        case MessageType.AdminSet: {
+          const clientId = message.clientId;
+          if (clientId !== ownId) {
+            if (clientId === '') {
+              setShowAdminCheckbox(true);
+            } else {
+              setIsAdmin(false);
+              setShowAdminCheckbox(false);
+            }
+          }
           break;
         }
         default:
@@ -153,26 +188,28 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
 
   return (
     <div className="App">
+      {showAdminCheckbox && (
+        <div style={{ marginTop: 10 }}>
+          <input
+            type="checkbox"
+            id="adminCheckbox"
+            checked={isAdmin}
+            onClick={onAdminSet}
+          ></input>
+          Ich bin ein Administrator
+        </div>
+      )}
+
       <div style={{ flexDirection: 'row', margin: 16 }}>
         <label>
-          Dein Name:
+          <strong>Dein Name:</strong>
           <input
+            className="Input"
             style={{ marginLeft: 16 }}
             value={name}
             onChange={handleNameChange}
           ></input>
         </label>
-      </div>
-
-      <div>
-        <button
-          onClick={() => {
-            socket.send(JSON.stringify({ type: MessageType.Reset }));
-            reset();
-          }}
-        >
-          Reset
-        </button>
       </div>
 
       <Selection
@@ -181,6 +218,19 @@ const App: React.FC<IProps> = ({ room = 'default' }: IProps) => {
       />
 
       <Results ownId={ownId} users={users} />
+
+      {isAdmin && (
+        <div style={{ marginTop: 50 }}>
+          <button
+            onClick={() => {
+              socket.send(JSON.stringify({ type: MessageType.Reset }));
+              reset();
+            }}
+          >
+            Reset
+          </button>
+        </div>
+      )}
     </div>
   );
 };

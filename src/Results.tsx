@@ -31,7 +31,7 @@ export const Results = ({ ownId, users }: IProps) => {
 
   const extendedUsers = Object.keys(users).map(key => ({
     ...users[key],
-    key
+    key,
   }));
 
   const sortUsers = (
@@ -39,7 +39,7 @@ export const Results = ({ ownId, users }: IProps) => {
       key: string;
       name: string;
       value?: string | undefined;
-    }[]
+    }[],
   ) => {
     return users.sort((user1, user2) => {
       if (!user1.value) return -1;
@@ -72,10 +72,20 @@ export const Results = ({ ownId, users }: IProps) => {
         return (
           <Card
             key={extendedSortedUsers.key}
-            color={isOwnResult(extendedSortedUsers.key) ? "#c3f7f7" : undefined}
+            color={isOwnResult(extendedSortedUsers.key) ? '#c3f7f7' : undefined}
           >
             <div>
-              <div style={{ padding: 16 }}>{extendedSortedUsers.name}</div>
+              <div
+                style={{
+                  padding: 16,
+                  wordWrap: 'break-word',
+                  height: '1em',
+                  lineHeight: '1em',
+                  overflow: 'hidden',
+                }}
+              >
+                {extendedSortedUsers.name}
+              </div>
               <div
                 style={{
                   fontSize: 80,
